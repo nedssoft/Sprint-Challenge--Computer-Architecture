@@ -174,7 +174,7 @@ class CPU:
     def handle_ret(self):
         self.pc = self.ram_read(self.reg[self.sp])
         self.reg[self.sp] += 1
-        
+
     def handle_cmp(self):
         operand_a = self.ram_read(self.pc+1)
         operand_b = self.ram_read(self.pc+2)
@@ -182,3 +182,8 @@ class CPU:
         self.equal = True if operand_a == operand_b else False
         self.pc += 3
 
+    def handle_jeq(self):
+        operand_a = self.reg[self.pc +1]
+        if self.equal:
+            self.pc = operand_a
+    
