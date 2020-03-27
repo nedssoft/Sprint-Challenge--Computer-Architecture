@@ -25,7 +25,8 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0
         self.sp = 7
-        self.equal = False
+        self.equal = 0
+        self.running = True
 
         self.branchtable = {}
         self.branchtable[LDI] = self.handle_ldi
@@ -78,7 +79,6 @@ class CPU:
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
-        print('ALU', op, reg_a, reg_b)
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         #elif op == "SUB": etc
@@ -109,11 +109,9 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        running = True
-
-        while running:
+        
+        while self.running:
             IR = self.ram[self.pc]
-            print(IR)
             try:
                 if IR in self.branchtable:
                     self.branchtable[IR]()
@@ -121,7 +119,7 @@ class CPU:
                 print(f'Invalid Opcode {hex(IR)}')
             
     def handle_halt(self):
-        sys.exit()
+        self.running = False
     
     def handle_print(self):
         operand_a = self.ram_read(self.pc+1)
@@ -176,20 +174,34 @@ class CPU:
         self.reg[self.sp] += 1
 
     def handle_cmp(self):
-        operand_a = self.ram_read(self.pc+1)
-        operand_b = self.ram_read(self.pc+2)
-        
-        self.equal = True if operand_a == operand_b else False
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = self.ram_read(self.pc+2)
+        operand_a = self.reg[reg_a]
+        operand_b = self.reg[reg_b]
+        if operand_a == operand_b:
+            self.equal = 1
+        else:
+            self.equal = 0
         self.pc += 3
+        
 
     def handle_jeq(self):
-        operand_a = self.reg[self.pc +1]
+        reg_a = self.ram_read(self.pc+1)
+        operand_a = self.reg[reg_a]
         if self.equal:
             self.pc = operand_a
+        else:
+            self.pc += 2
 
     def handle_jne(self):
-        operand_a = self.reg[self.pc +1]
+        reg_a = self.ram_read(self.pc+1)
+        operand_a = self.reg[reg_a]
         if self.equal == False:
             self.pc = operand_a
-    
+        else:
+            self.pc += 2
+    def handle_jmp(self):
+        reg_a = self.ram_read(self.pc+1)
+        operand_a = self.reg[reg_a]
+        self.pc = operand_a
     
