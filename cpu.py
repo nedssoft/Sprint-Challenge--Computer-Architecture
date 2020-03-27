@@ -25,6 +25,7 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0
         self.sp = 7
+        self.equal = False
 
         self.branchtable = {}
         self.branchtable[LDI] = self.handle_ldi
@@ -35,8 +36,11 @@ class CPU:
         self.branchtable[POP] = self.handle_pop
         self.branchtable[ADD] = self.handle_add
         self.branchtable[CALL] = self.handle_call
+        self.branchtable[CMP] = self.handle_cmp
         self.branchtable[RET] = self.handle_ret
-
+        self.branchtable[JNE] = self.handle_jne
+        self.branchtable[JEQ] = self.handle_jeq
+        self.branchtable[JMP] = self.handle_jmp
 
     def ram_read(self, address):
         return self.ram[address]
@@ -170,3 +174,11 @@ class CPU:
     def handle_ret(self):
         self.pc = self.ram_read(self.reg[self.sp])
         self.reg[self.sp] += 1
+        
+    def handle_cmp(self):
+        operand_a = self.ram_read(self.pc+1)
+        operand_b = self.ram_read(self.pc+2)
+        
+        self.equal = True if operand_a == operand_b else False
+        self.pc += 3
+
