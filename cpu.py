@@ -186,4 +186,10 @@ class CPU:
         operand_a = self.reg[self.pc +1]
         if self.equal:
             self.pc = operand_a
+
+    def handle_jne(self):
+        operand_a = self.reg[self.pc +1]
+        if self.equal == False:
+            self.pc = operand_a
+    
     
